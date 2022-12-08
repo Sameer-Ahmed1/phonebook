@@ -16,9 +16,9 @@ const App = () => {
     "Programming without an extremely heavy use of console.log is same as if a doctor would refuse to use x-rays or blood tests when diagnosing patients.",
   ];
 
+  const getRandomAnecdote = () => Math.floor(Math.random() * anecdotes.length);
   const [selected, setSelected] = useState(0);
   const [points, setPoints] = useState(Array(anecdotes.length).fill(0));
-  const getRandomAnecdote = () => Math.floor(Math.random() * anecdotes.length);
   const setSelectedValue = () => setSelected(getRandomAnecdote());
   const setPointsValue = () => {
     const copy = [...points];
