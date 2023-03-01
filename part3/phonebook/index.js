@@ -3,7 +3,7 @@ const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const Person = require("./models/person");
-morgan.token("data", (request, response) => {
+morgan.token("data", (request) => {
   return JSON.stringify(request.body);
 });
 const app = express();
@@ -14,7 +14,7 @@ app.use(
   morgan(
     ":method :url :status :res[content-length] - :response-time ms :data",
     {
-      skip: function (req, res) {
+      skip: function (req) {
         return req.method !== "POST";
       },
     }
