@@ -3,37 +3,16 @@ const app = express();
 const cors = require("cors");
 const Blog = require("./models/blogs.js");
 const logger = require("./utils/logger.js");
+const blogsRouter = require("./controllers/blogs.js");
 
 app.use(cors());
 app.use(express.json());
 
-app.get("/api/blogs", (request, response, next) => {
-  Blog.find({})
-    .then((blogs) => {
-      if (blogs) {
-        logger.info("blogs fetched successfully!");
-        response.json(blogs);
-      }
-    })
-    .catch((error) => next(error));
-});
+app.use("/api/blogs", blogsRouter);
 
-app.post("/api/blogs", (request, response, next) => {
-  const blog = new Blog(request.body);
-
-  blog
-    .save()
-    .then((result) => {
-      logger.info("blog saved successfully!");
-
-      response.status(201).json(result);
-    })
-    .catch((error) => next(error));
-});
 const unknownEndpoint = (request, response) => {
   response.status(404).send({ error: "unknown endpoint" });
 };
-app.use(unknownEndpoint);
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
   if (error.name === "CastError") {
@@ -43,5 +22,6 @@ const errorHandler = (error, request, response, next) => {
   }
   next(error);
 };
+app.use(unknownEndpoint);
 app.use(errorHandler);
 module.exports = app;
