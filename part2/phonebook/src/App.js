@@ -45,19 +45,27 @@ const App = () => {
       name: newName,
       number: newNumber,
     };
-    personService.createPerson(personObject).then((response) => {
-      setPersons(
-        persons.concat({
-          name: response.data.name,
-          number: response.data.number,
-          id: response.data.id,
-        })
-      );
-      setnotification(`${response.data.name} added successfully! `);
-      setTimeout(() => {
-        setnotification("");
-      }, 3000);
-    });
+    personService
+      .createPerson(personObject)
+      .then((response) => {
+        setPersons(
+          persons.concat({
+            name: response.data.name,
+            number: response.data.number,
+            id: response.data.id,
+          })
+        );
+        setnotification(`${response.data.name} added successfully! `);
+        setTimeout(() => {
+          setnotification("");
+        }, 3000);
+      })
+      .catch((error) => {
+        setError(error.response.data.error);
+        setTimeout(() => {
+          setError("");
+        }, 3000);
+      });
     setNewNumber("");
     setNewName("");
   };
