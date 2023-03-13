@@ -20,7 +20,7 @@ mongoose
 
 app.use(cors());
 app.use(express.json());
-app.use(morgan.postLogger);
+// app.use(morgan.postLogger); not using during  testing
 app.use("/api/blogs", blogsRouter);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
