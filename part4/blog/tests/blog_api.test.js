@@ -53,10 +53,17 @@ test("default value of likes is zero if not provided", async () => {
     .expect("Content-Type", /application\/json/);
   expect(response.body.likes).toBe(0);
 });
-test("400 bad request if title or url is missing", async () => {
+test("fails with 400 bad req if title or url is missing", async () => {
   const blog = {};
   await api.post("/api/blogs").send(blog).expect(400);
 }, 10000);
+test("blog with valid id can be  deleted ", async () => {
+  const blogsBefore = await helper.blogsInDb();
+  const id = blogsBefore[0].id;
+  await api.delete(`/api/blogs/${id}`).expect(204);
+  const blogsAtEnd = await helper.blogsInDb();
+  expect(blogsAtEnd).not.toContainEqual({ id: id });
+});
 afterAll(async () => {
   await mongoose.connection.close();
 });
