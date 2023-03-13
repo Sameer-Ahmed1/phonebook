@@ -23,20 +23,20 @@ blogsRouter.post("/", async (request, response, next) => {
     next(error);
   }
 });
-blogsRouter.delete("/:id", (request, response, next) => {
-  const id = request.params.id;
-  Blog.findByIdAndRemove(id)
-    .then((blogDeleted) => {
-      if (blogDeleted) {
-        logger.info(
-          `${blogDeleted.title} ${blogDeleted.author} deleted successfully!`
-        );
-        response.status(204).end();
-      } else {
-        response.status(204).end();
-      }
-    })
-    .catch((error) => next(error));
+blogsRouter.delete("/:id", async (request, response, next) => {
+  try {
+    const id = request.params.id;
+    const blogDeleted = await Blog.findByIdAndRemove(id);
+    if (blogDeleted) {
+      logger.info(
+        `${blogDeleted.title} ${blogDeleted.author} deleted successfully!`
+      );
+      response.status(204).end();
+    } else {
+      response.status(204).end();
+    }
+  } catch (error) {
+    next(error);
+  }
 });
-
 module.exports = blogsRouter;
