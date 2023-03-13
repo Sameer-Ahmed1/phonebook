@@ -64,6 +64,20 @@ test("blog with valid id can be  deleted ", async () => {
   const blogsAtEnd = await helper.blogsInDb();
   expect(blogsAtEnd).not.toContainEqual({ id: id });
 });
+test("likes can be updated", async () => {
+  const blogsBefore = await helper.blogsInDb();
+  const blog = {
+    ...blogsBefore[0],
+    likes: blogsBefore[0].likes + 10,
+  };
+  const id = blogsBefore[0].id;
+  const response = await api
+    .put(`/api/blogs/${id}`)
+    .send(blog)
+    .expect(200)
+    .expect("Content-Type", /application\/json/);
+  expect(response.body).toEqual(blog);
+});
 afterAll(async () => {
   await mongoose.connection.close();
 });
