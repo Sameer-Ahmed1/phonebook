@@ -53,7 +53,10 @@ test("default value of likes is zero if not provided", async () => {
     .expect("Content-Type", /application\/json/);
   expect(response.body.likes).toBe(0);
 });
-
+test("400 bad request if title or url is missing", async () => {
+  const blog = {};
+  await api.post("/api/blogs").send(blog).expect(400);
+}, 10000);
 afterAll(async () => {
   await mongoose.connection.close();
 });
