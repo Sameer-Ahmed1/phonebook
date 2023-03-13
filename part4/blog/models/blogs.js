@@ -20,6 +20,7 @@ const blogSchema = new mongoose.Schema({
     type: Number,
     minLength: 1,
     required: true,
+    default: 0,
   },
 });
 blogSchema.set("toJSON", {
