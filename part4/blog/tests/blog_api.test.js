@@ -40,6 +40,20 @@ test("a valid blog can be added", async () => {
   expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1);
 });
 
+test("default value of likes is zero if not provided", async () => {
+  const blog = {
+    title: "likes is not provided",
+    author: "sam hemworth",
+    url: "example.com/6",
+  };
+  const response = await api
+    .post("/api/blogs/")
+    .send(blog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+  expect(response.body.likes).toBe(0);
+});
+
 afterAll(async () => {
   await mongoose.connection.close();
 });
