@@ -2,6 +2,14 @@ const logger = require("../utils/logger.js");
 const User = require("../models/user.js");
 const bcrypt = require("bcrypt");
 const userRouter = require("express").Router();
+userRouter.get("/", async (request, response, next) => {
+  try {
+    const users = await User.find({});
+    response.json(users);
+  } catch (error) {
+    next(error);
+  }
+});
 userRouter.post("/", async (request, response, next) => {
   try {
     const body = request.body;
