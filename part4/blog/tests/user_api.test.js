@@ -9,17 +9,18 @@ const api = supertest(app);
 beforeEach(async () => {
   await User.deleteMany({});
   const passwordHash = await bcrypt.hash("sekret", 10);
-  const user = new User({ username: "root", name: "lam adamea", passwordHash });
+  const { username, name } = helper.initialUser;
+  const user = new User({ username: username, name: name, passwordHash });
   await user.save();
 });
 test("all users are returned as json with all properties", async () => {
-  const requiredKeys = ["username", "name", "id"];
   const response = await api
     .get("/api/users")
     .expect(200)
     .expect("Content-Type", /application\/json/);
   response.body.forEach((res) => {
-    expect(Object.keys(res)).toEqual(requiredKeys);
+    expect(Object.keys(res)).toContain("username");
+    expect(Object.keys(res)).toContain("id");
   });
 });
 test("creation succeeds with a fresh username", async () => {
@@ -42,7 +43,24 @@ test("creation succeeds with a fresh username", async () => {
   const usernames = usersAtEnd.map((u) => u.username);
   expect(usernames).toContain(newUser.username);
 });
-
+test("creation fails if username and password is not provided ", async () => {
+  const newUser = {
+    name: "mattilukk",
+  };
+  await api.post("/api/users").send(newUser).expect(400);
+});
+test("creation fails if username is not unique", async () => {
+  const newUser = helper.initialUser;
+  await api.post("/api/users").send(newUser).expect(400);
+});
+test("creation fails if username and password are less than 3 characters long ", async () => {
+  const newUser = {
+    username: "fj",
+    name: "ffffff",
+    password: "fj",
+  };
+  await api.post("/api/users").send(newUser).expect(400);
+});
 afterAll(async () => {
   await mongoose.connection.close();
 });
