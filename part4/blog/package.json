@@ -6,7 +6,7 @@
   "scripts": {
     "start": "NODE_ENV=production node index.js",
     "dev": "NODE_ENV=development nodemon index.js",
-    "test": "NODE_ENV=test jest --verbose --runInBand  --testPathIgnorePatterns list_helper.test.js blog_api.test.js"
+    "test": "NODE_ENV=test jest --verbose --runInBand  --testPathIgnorePatterns list_helper.test.js user_api.test.js"
   },
   "author": "sameer ahmed",
   "license": "MIT",
