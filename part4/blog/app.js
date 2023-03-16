@@ -8,6 +8,7 @@ const logger = require("./utils/logger.js");
 const config = require("./utils/config.js");
 const middleware = require("./utils/middleware.js");
 const morgan = require("./utils/morgan.js");
+const loginRouter = require("./controllers/login.js");
 mongoose.set("strictQuery", false);
 
 mongoose
@@ -24,6 +25,7 @@ app.use(express.json());
 // app.use(morgan.postLogger); not using during  testing
 app.use("/api/users", usersRouter);
 app.use("/api/blogs", blogsRouter);
+app.use("/api/login", loginRouter);
 app.use(middleware.unknownEndpoint);
 app.use(middleware.errorHandler);
 module.exports = app;
