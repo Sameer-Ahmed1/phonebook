@@ -1,17 +1,9 @@
 const logger = require("../utils/logger.js");
 const jwt = require("jsonwebtoken");
-
 const Blog = require("../models/blogs.js");
 const User = require("../models/user.js");
 const blogsRouter = require("express").Router();
-const getTokenFrom = (request) => {
-  const authorization = request.get("authorization");
-  if (authorization && authorization.startsWith("Bearer ")) {
-    return authorization.replace("Bearer ", "");
-  }
 
-  return null;
-};
 blogsRouter.get("/", async (request, response, next) => {
   const blogs = await Blog.find({}).populate("user", {
     username: 1,
@@ -30,7 +22,7 @@ blogsRouter.get("/", async (request, response, next) => {
 
 blogsRouter.post("/", async (request, response, next) => {
   try {
-    const decodedToken = jwt.verify(getTokenFrom(request), process.env.SECRET);
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
     if (!decodedToken) {
       return response.status(400).json({ error: "token invalid" });
     }
@@ -46,15 +38,25 @@ blogsRouter.post("/", async (request, response, next) => {
 });
 blogsRouter.delete("/:id", async (request, response, next) => {
   try {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+    if (!decodedToken) {
+      return response.status(400).json({ error: "token invalid" });
+    }
+    const user = await User.findById(decodedToken.id);
+    const userid = user.id;
+
     const id = request.params.id;
-    const blogDeleted = await Blog.findByIdAndRemove(id);
-    if (blogDeleted) {
-      logger.info(
-        `${blogDeleted.title} ${blogDeleted.author} deleted successfully!`
-      );
-      response.status(204).end();
+    const blog = await Blog.findById(id);
+    if (blog.user.toString() === userid.toString()) {
+      const blogDeleted = await Blog.findByIdAndDelete(id);
+      if (blogDeleted) {
+        logger.info(
+          `${blogDeleted.title} ${blogDeleted.author} deleted successfully!`
+        );
+        response.status(204).end();
+      }
     } else {
-      response.status(204).end();
+      response.status(400).json({ error: "invalid user" });
     }
   } catch (error) {
     next(error);
