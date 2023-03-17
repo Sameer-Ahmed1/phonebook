@@ -104,6 +104,16 @@ test("likes can be updated", async () => {
     .expect("Content-Type", /application\/json/);
   expect(response.body).toEqual({ ...blog, user: blog.user.toString() });
 });
+test("fails with 401 unauthorized if a token is not provide", async () => {
+  const user = await User.findOne({ username: helper.initialUser.username });
+  const blog = {
+    title: "random blog",
+    author: "sam hemworth",
+    url: "example.com/6",
+    user: user._id,
+  };
+  await api.post("/api/blogs/").send(blog).expect(401);
+});
 afterAll(async () => {
   await mongoose.connection.close();
 });
