@@ -1,3 +1,4 @@
+const _ = require("lodash");
 const dummy = (blogs) => {
   return 1;
 };
@@ -13,8 +14,30 @@ function favoriteBlog(blogs) {
     { likes: 0 }
   );
 }
+function mostBlogs(blogs) {
+  const result = _(blogs)
+    .groupBy("author")
+    .map((objs, key) => ({
+      author: key,
+      blogs: _.size(objs),
+    }))
+    .orderBy("blogs", "desc")
+    .head();
+
+  return result;
+}
+function mostLikes(blogs) {
+  const result = _(blogs)
+    .groupBy("likes")
+    .map((objs, key) => ({ likes: +key, author: objs[0].author }))
+    .orderBy("likes", "desc")
+    .head();
+  return result;
+}
 module.exports = {
   dummy,
   totalLikes,
   favoriteBlog,
+  mostBlogs,
+  mostLikes,
 };
