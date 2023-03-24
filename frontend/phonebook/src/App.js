@@ -8,6 +8,8 @@ import ErrorMessage from "./components/ErrorMessage.js";
 import loginService from "./services/login";
 import LoginForm from "./components/login.js";
 import Display from "./components/Display.js";
+import userService from "./services/user";
+import SignupForm from "./components/SIgnupForm.js";
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
@@ -19,7 +21,7 @@ const App = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState(null);
-
+  const [signup, setSignup] = useState(false);
   useEffect(() => {
     if (user) {
       personService.getAll().then((response) => setPersons(response.data));
@@ -50,6 +52,7 @@ const App = () => {
         username,
         password,
       });
+
       window.localStorage.setItem("loggedPhonebookUser", JSON.stringify(user));
       personService.setToken(user.token);
 
@@ -177,21 +180,60 @@ const App = () => {
       window.location.href = "/";
     }
   };
+
+  const handleSignup = async (event) => {
+    event.preventDefault();
+    try {
+      const userCreated = await userService.createUser({
+        username,
+        password,
+      });
+      if (user) {
+        setnotification(`${username} created successfully`);
+        setTimeout(() => {
+          setnotification(null);
+        }, 5000);
+      }
+
+      setUsername("");
+      setPassword("");
+      setSignup(false);
+      window.location.href = "/";
+    } catch (error) {
+      setError(error.message);
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    }
+  };
   return (
     <div>
       <h2>Phonebook</h2>
       <Notification message={notification} />
       <ErrorMessage message={error} />
 
-      {user === null && (
-        <LoginForm
-          handleLogin={handleLogin}
-          setUsername={setUsername}
-          setPassword={setPassword}
-          username={username}
-          password={password}
-        />
-      )}
+      {user === null &&
+        (!signup ? (
+          <div>
+            <LoginForm
+              handleLogin={handleLogin}
+              setUsername={setUsername}
+              setPassword={setPassword}
+              username={username}
+              password={password}
+            />
+            <Display message={"new user? sigunp here"} />
+            <button onClick={() => setSignup(true)}>sign up</button>
+          </div>
+        ) : (
+          <SignupForm
+            handleSignup={handleSignup}
+            setUsername={setUsername}
+            setPassword={setPassword}
+            username={username}
+            password={password}
+          />
+        ))}
       {user !== null && (
         <div>
           <div>
