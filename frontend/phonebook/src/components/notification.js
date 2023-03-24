@@ -1,19 +1,14 @@
 const Notification = ({ message }) => {
-  const notificationStyle = {
-    color: "green",
-    border: "solid green",
-    fontSize: 50,
-    padding: 5,
-    paddingLeft: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-  };
   if (!message) {
     return null;
   }
   return (
-    <div style={notificationStyle} className="notification">
-      {message}
+    <div className="text-center my-3">
+      <div className="col-12 col-sm-8 col-md-6 col-lg-4 mx-auto">
+        <div className="alert alert-success" role="alert">
+          {message}
+        </div>
+      </div>
     </div>
   );
 };

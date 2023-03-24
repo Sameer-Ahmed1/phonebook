@@ -1,26 +1,47 @@
-const PersonForm = (props) => (
-  <form onSubmit={props.handleSubmit}>
-    <div>
-      name:{" "}
-      <input
-        type="text"
-        value={props.newNameValue}
-        onChange={props.handleNameInputChange}
-      />
+import React, { useState } from "react";
+
+const PersonForm = (props) => {
+  const [isHidden, setIsHidden] = useState(true);
+
+  const toggleVisibility = () => {
+    setIsHidden(!isHidden);
+  };
+
+  return (
+    <div style={{ maxWidth: "500px" }}>
+      <button className="btn btn-primary mb-3" onClick={toggleVisibility}>
+        {isHidden ? " + " : "collapse"}
+      </button>
+
+      {!isHidden && (
+        <form onSubmit={props.handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="nameInput">Name:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="nameInput"
+              value={props.newNameValue}
+              onChange={props.handleNameInputChange}
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="numberInput">Number:</label>
+            <input
+              type="text"
+              className="form-control"
+              id="numberInput"
+              value={props.newNumberValue}
+              onChange={props.handleNumberInputChange}
+            />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            Add
+          </button>
+        </form>
+      )}
     </div>
-    <br></br>
-    <div>
-      number:{" "}
-      <input
-        type="text"
-        value={props.newNumberValue}
-        onChange={props.handleNumberInputChange}
-      />
-    </div>
-    <br></br>
-    <div>
-      <button type="submit">add</button>
-    </div>
-  </form>
-);
+  );
+};
+
 export default PersonForm;

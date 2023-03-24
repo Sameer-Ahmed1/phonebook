@@ -1,16 +1,16 @@
 const ErrorMessage = ({ message }) => {
-  const errorStyle = {
-    color: "red",
-    border: "solid red",
-    fontSize: 50,
-    padding: 5,
-    paddingLeft: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-  };
   if (!message) {
     return null;
   }
-  return <div style={errorStyle}>{message}</div>;
+  return (
+    <div className="text-center my-3">
+      <div className="col-12 col-sm-8 col-md-6 col-lg-4 mx-auto">
+        <div className="alert alert-danger" role="alert">
+          {message}
+        </div>
+      </div>
+    </div>
+  );
 };
+
 export default ErrorMessage;

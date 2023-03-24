@@ -9,6 +9,7 @@ import loginService from "./services/login";
 import LoginForm from "./components/login.js";
 import Display from "./components/Display.js";
 import userService from "./services/user";
+import "bootstrap/dist/css/bootstrap.min.css";
 import SignupForm from "./components/SIgnupForm.js";
 const App = () => {
   const [persons, setPersons] = useState([]);
@@ -222,8 +223,13 @@ const App = () => {
               username={username}
               password={password}
             />
-            <Display message={"new user? sigunp here"} />
-            <button onClick={() => setSignup(true)}>sign up</button>
+            <Display message={"new user? signup here"} />
+            <button
+              className="btn btn-primary d-block mx-auto my-3"
+              onClick={() => setSignup(true)}
+            >
+              Sign Up
+            </button>
           </div>
         ) : (
           <SignupForm
@@ -236,21 +242,34 @@ const App = () => {
         ))}
       {user !== null && (
         <div>
-          <div>
-            <Display message={`${user.username} is logged in`} />{" "}
-            <button onClick={handleLogout}>logout</button>
+          <div className="d-flex align-items-center">
+            <div className="col">
+              <Display message={`${user.username} is logged in`} />
+            </div>
+            <div className="col-auto mx-2">
+              <button className="btn btn-primary" onClick={handleLogout}>
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <br></br>
+          <br></br>
+          <div
+            className="mx-auto text-center"
+            style={{ maxWidth: "500px", padding: "20px" }}
+          >
+            <h2>Add new </h2>
+            <PersonForm
+              handleSubmit={addNewPerson}
+              handleNameInputChange={onNameInputChange}
+              handleNumberInputChange={onNumberInputChange}
+              newNumberValue={newNumber}
+              newNameValue={newName}
+            />
           </div>
           <Filter filterValue={filter} handleFilterChange={onFilterChange} />
-          <br></br>
-          <br></br>
-          <h2>Add new </h2>
-          <PersonForm
-            handleSubmit={addNewPerson}
-            handleNameInputChange={onNameInputChange}
-            handleNumberInputChange={onNumberInputChange}
-            newNumberValue={newNumber}
-            newNameValue={newName}
-          />
+
           <Persons persons={personsFiltered} deletePerson={deletePerson} />
         </div>
       )}
