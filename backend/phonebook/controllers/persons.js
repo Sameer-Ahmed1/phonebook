@@ -1,5 +1,6 @@
 const Person = require("../models/person.js");
-
+const jwt = require("jsonwebtoken");
+const User = require("../models/user");
 const personsRouter = require("express").Router();
 
 personsRouter.get("/", (request, response) => {
@@ -7,91 +8,99 @@ personsRouter.get("/", (request, response) => {
 });
 personsRouter.get("/api/persons", (request, response, next) => {
   Person.find({})
+    .populate("user", {
+      username: 1,
+      name: 1,
+      id: 1,
+    })
     .then((persons) => {
       console.log("persons fetched successfully");
       response.json(persons);
     })
     .catch((error) => next(error));
 });
-personsRouter.get("/info", (request, response, next) => {
-  Person.estimatedDocumentCount()
-    .then((totalPersons) => {
-      console.log("info fetched successfully");
-      const responseHtml = `Phonebook has info for ${totalPersons}<br>${Date()}`;
-      response.send(responseHtml);
-    })
-    .catch((error) => next(error));
-});
-personsRouter.get("/api/persons/:id", (request, response, next) => {
-  const id = request.params.id;
-  Person.findById(id)
-    .then((personFound) => {
-      if (personFound) {
-        console.log(
-          `${personFound.name} ${personFound.number} fetched successfully `
-        );
-        response.json(personFound);
-      } else {
-        response.status(404).end();
-      }
-    })
-    .catch((error) => next(error));
-});
-personsRouter.delete("/api/persons/:id", (request, response, next) => {
-  const id = request.params.id;
-  Person.findByIdAndRemove(id)
-    .then((personDeleted) => {
+
+personsRouter.delete("/api/persons/:id", async (request, response, next) => {
+  try {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+    if (!decodedToken) {
+      return response.status(400).json({ error: "token invalid" });
+    }
+    const user = await User.findById(decodedToken.id);
+    const userid = user.id;
+    //check whether the user (from token) matches  user (from blog)
+    const id = request.params.id;
+    const person = await Person.findById(id);
+    if (person.user.toString() === userid.toString()) {
+      const personDeleted = await Person.findByIdAndDelete(id);
       if (personDeleted) {
-        console.log("in the personDelete function", personDeleted);
         console.log(
           `${personDeleted.name} ${personDeleted.number} deleted successfully!`
         );
         response.status(204).end();
-      } else {
-        response.status(204).end();
       }
-    })
-    .catch((error) => next(error));
+    } else {
+      response.status(400).json({ error: "invalid user" });
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
-personsRouter.post("/api/persons", (request, response, next) => {
-  const body = request.body;
-  // if (!body.name || !body.number) {
-  //   return response.status(400).json({ error: "missing name or number" });
-  // }
-  const person = new Person({
-    name: body.name,
-    number: body.number,
-  });
-  person
-    .save()
-    .then((savedPerson) => {
-      response.json(savedPerson);
-    })
-    .catch((error) => next(error));
-});
-personsRouter.put("/api/persons/:id", (request, response, next) => {
-  const body = request.body;
-  if (!body.name || !body.number) {
-    return response.status(400).json({ error: "missing name or number" });
+personsRouter.post("/api/persons", async (request, response, next) => {
+  try {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+    if (!decodedToken) {
+      return response.status(400).json({ error: "token invalid" });
+    }
+    const user = await User.findById(decodedToken.id);
+    const person = new Person({ ...request.body, user: user._id });
+    const savedPerson = await person.save();
+    user.persons = user.persons.concat(savedPerson._id);
+    await user.save();
+    response.status(201).json(savedPerson);
+  } catch (error) {
+    next(error);
   }
-  //normal javascript object
-  const person = {
-    name: body.name,
-    number: body.number,
-  };
-  Person.findByIdAndUpdate(request.params.id, person, {
-    new: true,
-    runValidators: true,
-    context: "query",
-  })
-    .then((updatedPerson) => {
+});
+personsRouter.put("/api/persons/:id", async (request, response, next) => {
+  try {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+    if (!decodedToken) {
+      return response.status(400).json({ error: "token invalid" });
+    }
+    const user = await User.findById(decodedToken.id);
+    const userid = user.id;
+    //check whether the user (from token) matches  user (from blog)
+    const id = request.params.id;
+    const person = await Person.findById(id);
+    const body = request.body;
+
+    if (person.user.toString() === userid.toString()) {
+      const person = {
+        name: body.name,
+        number: body.number,
+      };
+
+      const updatedPerson = await Person.findByIdAndUpdate(
+        request.params.id,
+        person,
+        {
+          new: true,
+          runValidators: true,
+          context: "query",
+        }
+      );
       console.log(
         `${updatedPerson.name} ${updatedPerson.number} update successfully`
       );
       response.json(updatedPerson);
-    })
-    .catch((error) => next(error));
+    } else {
+      response.status(400).json({ error: "invalid user" });
+    }
+  } catch (error) {
+    next(error);
+  }
 });
 
 module.exports = personsRouter;
