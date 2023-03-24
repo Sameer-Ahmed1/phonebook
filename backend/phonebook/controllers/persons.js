@@ -6,18 +6,25 @@ const personsRouter = require("express").Router();
 personsRouter.get("/", (request, response) => {
   response.send("hello ");
 });
-personsRouter.get("/api/persons", (request, response, next) => {
-  Person.find({})
-    .populate("user", {
+personsRouter.get("/api/persons", async (request, response, next) => {
+  try {
+    const decodedToken = jwt.verify(request.token, process.env.SECRET);
+    if (!decodedToken) {
+      return response.status(400).json({ error: "token invalid" });
+    }
+    const user = await User.findById(decodedToken.id);
+
+    const persons = await Person.find({ user }).populate("user", {
       username: 1,
       name: 1,
       id: 1,
-    })
-    .then((persons) => {
-      console.log("persons fetched successfully");
-      response.json(persons);
-    })
-    .catch((error) => next(error));
+    });
+
+    console.log("persons fetched successfully");
+    response.json(persons);
+  } catch (error) {
+    next(error);
+  }
 });
 
 personsRouter.delete("/api/persons/:id", async (request, response, next) => {

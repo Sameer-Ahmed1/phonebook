@@ -5,7 +5,9 @@ import Filter from "./components/Filter";
 import Persons from "./components/Persons";
 import Notification from "./components/notification.js";
 import ErrorMessage from "./components/ErrorMessage.js";
-
+import loginService from "./services/login";
+import LoginForm from "./components/login.js";
+import Display from "./components/Display.js";
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("");
@@ -14,9 +16,15 @@ const App = () => {
   const [personsFiltered, setPersonsFiltered] = useState([]);
   const [notification, setnotification] = useState("");
   const [error, setError] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [user, setUser] = useState(null);
+
   useEffect(() => {
-    personService.getAll().then((response) => setPersons(response.data));
-  }, []);
+    if (user) {
+      personService.getAll().then((response) => setPersons(response.data));
+    }
+  }, [user]);
   useEffect(() => {
     let personsNew = persons.filter((person) => {
       return person.name
@@ -25,6 +33,36 @@ const App = () => {
     });
     setPersonsFiltered(personsNew);
   }, [filter, persons]);
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedPhonebookUser");
+    if (loggedUserJSON) {
+      const user = JSON.parse(loggedUserJSON);
+      setUser(user);
+      personService.setToken(user.token);
+    }
+  }, []);
+
+  const handleLogin = async (event) => {
+    event.preventDefault();
+
+    try {
+      const user = await loginService.login({
+        username,
+        password,
+      });
+      window.localStorage.setItem("loggedPhonebookUser", JSON.stringify(user));
+      personService.setToken(user.token);
+
+      setUser(user);
+      setUsername("");
+      setPassword("");
+    } catch (exception) {
+      setError("Wrong credentials");
+      setTimeout(() => {
+        setError(null);
+      }, 5000);
+    }
+  };
 
   const addNewPerson = (event) => {
     event.preventDefault();
@@ -108,7 +146,13 @@ const App = () => {
       personService
         .deletePerson(id)
         .then(() => personService.getAll())
-        .then((response) => setPersons(response.data))
+        .then((response) => {
+          setPersons(response.data);
+          setnotification(`${personToBeDeleted.name} deleted successfully`);
+          setTimeout(() => {
+            setnotification("");
+          }, 3000);
+        })
         .catch((error) => {
           setError(`${personToBeDeleted.name} is already deleted`);
           setTimeout(() => {
@@ -127,24 +171,47 @@ const App = () => {
   const onFilterChange = (event) => {
     setFilter(event.target.value);
   };
-
+  const handleLogout = () => {
+    if (user) {
+      window.localStorage.removeItem("loggedPhonebookUser");
+      window.location.href = "/";
+    }
+  };
   return (
     <div>
       <h2>Phonebook</h2>
       <Notification message={notification} />
       <ErrorMessage message={error} />
-      <Filter filterValue={filter} handleFilterChange={onFilterChange} />
-      <br></br>
-      <br></br>
-      <h2>Add new </h2>
-      <PersonForm
-        handleSubmit={addNewPerson}
-        handleNameInputChange={onNameInputChange}
-        handleNumberInputChange={onNumberInputChange}
-        newNumberValue={newNumber}
-        newNameValue={newName}
-      />
-      <Persons persons={personsFiltered} deletePerson={deletePerson} />
+
+      {user === null && (
+        <LoginForm
+          handleLogin={handleLogin}
+          setUsername={setUsername}
+          setPassword={setPassword}
+          username={username}
+          password={password}
+        />
+      )}
+      {user !== null && (
+        <div>
+          <div>
+            <Display message={`${user.username} is logged in`} />{" "}
+            <button onClick={handleLogout}>logout</button>
+          </div>
+          <Filter filterValue={filter} handleFilterChange={onFilterChange} />
+          <br></br>
+          <br></br>
+          <h2>Add new </h2>
+          <PersonForm
+            handleSubmit={addNewPerson}
+            handleNameInputChange={onNameInputChange}
+            handleNumberInputChange={onNumberInputChange}
+            newNumberValue={newNumber}
+            newNameValue={newName}
+          />
+          <Persons persons={personsFiltered} deletePerson={deletePerson} />
+        </div>
+      )}
     </div>
   );
 };

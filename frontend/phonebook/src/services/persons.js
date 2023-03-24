@@ -1,16 +1,35 @@
 import axios from "axios";
 const baseUrl = "/api/persons";
-const getAll = () => {
-  return axios.get(baseUrl);
-};
-const createPerson = (newbject) => {
-  return axios.post(baseUrl, newbject);
-};
-const updateNumber = (updatedObject) => {
-  return axios.put(`${baseUrl}/${updatedObject.id}`, updatedObject);
-};
-const deletePerson = (id) => {
-  return axios.delete(`${baseUrl}/${id}`);
+let token = null;
+
+const setToken = (newToken) => {
+  token = `Bearer ${newToken}`;
 };
 
-export default { getAll, createPerson, deletePerson, updateNumber };
+const getAll = () => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  return axios.get(baseUrl, config);
+};
+const createPerson = (newbject) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+
+  return axios.post(baseUrl, newbject, config);
+};
+const updateNumber = (updatedObject) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  return axios.put(`${baseUrl}/${updatedObject.id}`, updatedObject, config);
+};
+const deletePerson = (id) => {
+  const config = {
+    headers: { Authorization: token },
+  };
+  return axios.delete(`${baseUrl}/${id}`, config);
+};
+
+export default { getAll, createPerson, deletePerson, updateNumber, setToken };
