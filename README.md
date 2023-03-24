@@ -6,9 +6,9 @@ This is a full stack web application built using MongoDB, Express, and React. Th
 
 To get started with the project, clone the repository and install the dependencies using `npm` in the respective directory
 
-`git clone https://github.com/your-username/full-stack-phonebook.git
-cd full-stack-phonebook
-npm install`
+`git clone https://github.com/your-username/full-stack-phonebook.git`
+`cd full-stack-phonebook`
+`npm install`
 
 To run the application locally, use the following command:
 
