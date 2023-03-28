@@ -21,6 +21,7 @@ const PersonForm = (props) => {
               type="text"
               className="form-control"
               id="nameInput"
+              placeholder="Sample name"
               value={props.newNameValue}
               onChange={props.handleNameInputChange}
             />
@@ -31,6 +32,7 @@ const PersonForm = (props) => {
               type="text"
               className="form-control"
               id="numberInput"
+              placeholder="000-0000"
               value={props.newNumberValue}
               onChange={props.handleNumberInputChange}
             />

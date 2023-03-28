@@ -6,6 +6,7 @@ const SignupForm = ({
   setPassword,
   username,
   password,
+  handleBack,
 }) => {
   return (
     <Container>
@@ -40,6 +41,13 @@ const SignupForm = ({
               className="rounded-pill w-100 mt-3"
             >
               signup
+            </Button>
+            <Button
+              onClick={handleBack}
+              variant="secondary"
+              className="rounded-pill w-100 mt-3"
+            >
+              go back
             </Button>
           </Form>
         </Col>

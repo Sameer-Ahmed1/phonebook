@@ -178,7 +178,8 @@ const App = () => {
   const handleLogout = () => {
     if (user) {
       window.localStorage.removeItem("loggedPhonebookUser");
-      window.location.href = "/";
+
+      window.location.reload();
     }
   };
 
@@ -189,7 +190,7 @@ const App = () => {
         username,
         password,
       });
-      if (user) {
+      if (userCreated) {
         setnotification(`${username} created successfully`);
         setTimeout(() => {
           setnotification(null);
@@ -201,11 +202,14 @@ const App = () => {
       setSignup(false);
       window.location.href = "/";
     } catch (error) {
-      setError(error.message);
+      setError(error.response.data.error);
       setTimeout(() => {
         setError(null);
       }, 5000);
     }
+  };
+  const handleBack = (event) => {
+    setSignup(false);
   };
   return (
     <div>
@@ -238,6 +242,7 @@ const App = () => {
             setPassword={setPassword}
             username={username}
             password={password}
+            handleBack={handleBack}
           />
         ))}
       {user !== null && (
